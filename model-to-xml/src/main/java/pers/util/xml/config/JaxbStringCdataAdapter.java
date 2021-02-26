@@ -5,13 +5,12 @@ import pers.util.xml.constant.CdataConstant;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
- * 描述：CdataAdapter
+ * 描述：JaxbStringCdataAdapter
  *
  * @author 归墟
  * @date 2021/2/24 11:19
  */
-public class JaxbCdataAdapter extends XmlAdapter<String, String> {
-
+public class JaxbStringCdataAdapter extends XmlAdapter<String, String> {
 
 
     @Override

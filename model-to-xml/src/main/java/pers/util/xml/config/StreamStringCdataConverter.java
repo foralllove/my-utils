@@ -5,13 +5,13 @@ import lombok.NoArgsConstructor;
 import pers.util.xml.constant.CdataConstant;
 
 /**
- * 描述：XStreamCDataConverter
+ * 描述：StreamStringCdataConverter
  *
  * @author 归墟
  * @date 2021/2/25 20:38
  */
 @NoArgsConstructor
-public class StreamCdataConverter extends StringConverter {
+public class StreamStringCdataConverter extends StringConverter {
 
     @Override
     public String toString(Object obj) {

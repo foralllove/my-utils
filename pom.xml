@@ -5,9 +5,11 @@
     <groupId>my-util</groupId>
     <artifactId>my-util</artifactId>
     <version>1.0.0-SNAPSHOT</version>
+
     <modules>
         <module>model-to-xml</module>
     </modules>
+
     <packaging>pom</packaging>
     <description>快捷工具类</description>
     <parent>
@@ -18,50 +20,67 @@
     </parent>
 
     <properties>
-        <jaxb-impl.version>2.3.0.1</jaxb-impl.version>
+        <jaxb.version>2.3.0.1</jaxb.version>
+        <spring.boot.version>2.2.4.RELEASE</spring.boot.version>
         <xstream.version>1.4.11</xstream.version>
         <lombok.version>1.18.10</lombok.version>
         <com.alibaba.fastjson.version>1.2.58</com.alibaba.fastjson.version>
     </properties>
-    <dependencies>
+    <dependencyManagement>
+        <dependencies>
 
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-            <version>${jaxb-impl.version}</version>
-        </dependency>
 
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
-            <optional>true</optional>
-        </dependency>
+<!--            <dependency>-->
+<!--                <groupId>javax.xml.bind</groupId>-->
+<!--                <artifactId>jaxb-api</artifactId>-->
+<!--                <version>${jaxb.version}</version>-->
+<!--            </dependency>-->
 
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>${com.alibaba.fastjson.version}</version>
-        </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-impl</artifactId>
+                <version>${jaxb.version}</version>
+            </dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-        </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-core</artifactId>
+                <version>${jaxb.version}</version>
+            </dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <optional>true</optional>
+            </dependency>
 
-        <dependency>
-            <groupId>com.thoughtworks.xstream</groupId>
-            <artifactId>xstream</artifactId>
-            <version>${xstream.version}</version>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${com.alibaba.fastjson.version}</version>
+            </dependency>
 
-        </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter</artifactId>
+                <version>${spring.boot.version}</version>
+            </dependency>
 
-    </dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+                <version>${spring.boot.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.thoughtworks.xstream</groupId>
+                <artifactId>xstream</artifactId>
+                <version>${xstream.version}</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
 
 
 </project>

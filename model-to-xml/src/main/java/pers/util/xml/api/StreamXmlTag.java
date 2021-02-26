@@ -3,8 +3,6 @@ package pers.util.xml.api;
 import com.thoughtworks.xstream.XStream;
 import pers.util.xml.config.StreamTransformer;
 
-import java.util.Map;
-
 /**
  * 描述：StreamXmlTag
  *
@@ -18,10 +16,9 @@ public interface StreamXmlTag extends XmlTag {
      * @return xml String
      */
     default String handToXml() {
-        Map<Class<?>, XStream> streamMap = StreamTransformer.getClass2StreamInstance();
-        XStream xStream = streamMap.get(this.getClass());
-        if(xStream == null){
-            StreamTransformer.registerClass(this.getClass());
+        XStream xStream = StreamTransformer.getStream(this);
+        if (xStream == null) {
+            return null;
         }
         return xStream.toXML(this);
     }
