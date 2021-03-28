@@ -8,6 +8,7 @@
 
     <modules>
         <module>model-to-xml</module>
+        <module>design-mode</module>
     </modules>
 
     <packaging>pom</packaging>
