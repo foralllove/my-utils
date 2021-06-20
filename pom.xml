@@ -9,6 +9,8 @@
     <modules>
         <module>model-to-xml</module>
         <module>design-mode</module>
+        <module>around-test</module>
+        <module>around-test</module>
     </modules>
 
     <packaging>pom</packaging>
