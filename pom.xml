@@ -10,7 +10,6 @@
         <module>model-to-xml</module>
         <module>design-mode</module>
         <module>around-test</module>
-        <module>around-test</module>
     </modules>
 
     <packaging>pom</packaging>
@@ -90,5 +89,18 @@
         </dependencies>
     </dependencyManagement>
 
-
+    <repositories>
+        <repository>
+            <id>nexus</id>
+            <name>nexus</name>
+            <url>http://192.168.1.169:8081/repository/maven-public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
 </project>

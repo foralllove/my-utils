@@ -12,4 +12,16 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Dom4jFieldXml {
+
+    /**
+     * 名称
+     * @return 返回
+     */
+    String name() default "";
+
+    /**
+     * 字段属性
+     * @return 属性
+     */
+    Class<?> attribute() default void.class;
 }

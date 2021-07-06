@@ -7,9 +7,6 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import pers.util.xml.annotation.Dom4jAttributeXml;
-import pers.util.xml.annotation.Dom4jFieldXml;
-import pers.util.xml.annotation.Dom4jXml;
 import pers.util.xml.api.JaxbXmlTag;
 import pers.util.xml.config.JaxbStringCdataAdapter;
 
@@ -29,14 +26,11 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @NoArgsConstructor
 @XmlRootElement(name = "root", namespace = "name-sp")
 @Slf4j
-@Dom4jXml
 public class JaxbXmlDemo implements JaxbXmlTag {
     @XmlElement(name = "id")
-    @Dom4jFieldXml
     @Getter(onMethod = @__(@XmlTransient))
     private String no;
 
-    @Dom4jAttributeXml
     @XmlJavaTypeAdapter(value = JaxbStringCdataAdapter.class)
     @XmlElement(name = "msg")
     @Getter(onMethod = @__(@XmlTransient))
