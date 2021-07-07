@@ -8,15 +8,14 @@ import pers.util.xml.annotation.Dom4jFieldXml;
  *
  * @author 归墟
  * @email huanghe@shzx.com
- * @date 2021/7/6 18:56
+ * @date 2021/7/7 11:13
  * @company 数海掌讯
  */
 @Data
-public class Dom4jXmlNamespace {
+public class Dom4jXmlAttribute {
 
-    @Dom4jFieldXml
-    private String a;
+    private String ks;
 
-    @Dom4jFieldXml(name = "x")
-    private String b;
+    @Dom4jFieldXml(name = "wo")
+    private String ws;
 }

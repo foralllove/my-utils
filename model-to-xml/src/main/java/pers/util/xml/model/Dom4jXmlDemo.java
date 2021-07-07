@@ -18,8 +18,10 @@ import pers.util.xml.annotation.Dom4jXml;
 @Dom4jXml(name = "file", namespace = Dom4jXmlNamespace.class)
 public class Dom4jXmlDemo {
 
-    @Dom4jFieldXml(name = "xid")
-    private String id;
+    @Dom4jFieldXml(name = "xid",attribute = Dom4jXmlAttribute.class)
+    private Dom4jXmlField id;
+
+    private Dom4jXmlAttribute idAttribute;
 
     private String key;
 

@@ -37,7 +37,7 @@ public class Dom4jXmlUtils {
             //属性转换的对象
             rootAttribute = namespace(rootElement, rootAttributeClass);
         }
-
+        //节点处理
         t = createInstanceAndField(rootElement, tClass);
         try {
             Field field = tClass.getDeclaredField("namespace");
@@ -65,13 +65,22 @@ public class Dom4jXmlUtils {
                 continue;
             }
 
+            //设置根属性
+            if (dom4jFieldXml != null && dom4jFieldXml.attribute() != void.class) {
+                Object nodeAttribute = attribute(nodeElement, dom4jFieldXml.attribute());
+                Field declaredField = tClass.getDeclaredField(name + "Attribute");
+                declaredField.setAccessible(true);
+                declaredField.set(t, nodeAttribute);
+            }
+
+
             //设置元素值
             if (nodeElement.elements().isEmpty()) {
                 field.setAccessible(true);
                 field.set(t, nodeElement.getData());
                 continue;
             }
-            Object fieldValue = createInstanceAndField(nodeElement, field.getDeclaringClass());
+            Object fieldValue = createInstanceAndField(nodeElement, field.getType());
             field.setAccessible(true);
             field.set(t, fieldValue);
         }
@@ -89,8 +98,6 @@ public class Dom4jXmlUtils {
                 String name = dom4jFieldXml.name();
                 namespace = element.getNamespaceForPrefix(name);
             }
-
-
             if (namespace != null) {
                 //设置属性
                 field.setAccessible(true);
@@ -161,7 +168,10 @@ public class Dom4jXmlUtils {
     public static void main(String[] args) throws Exception {
         String str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                 "<file xmlns=\"urn:gsma:params:xml:ns:rcs:rcs:fthttp\" xmlns:x=\"urn:gsma:params:xml:ns:rcs:rcs:up:fthttpext\">" +
-                "<xid>xid1234</xid>" +
+                "<xid wo=\"kkk\" ks=\"gg\">" +
+                "<huanghe wo=\"laile\" ks=\"zoule\">sg</huanghe>" +
+                "<sh>sb</sh>" +
+                "</xid>" +
                 "<key>wode</key>" +
                 "</file>";
         Dom4jXmlDemo ww = xmlToBean(str, Dom4jXmlDemo.class);
