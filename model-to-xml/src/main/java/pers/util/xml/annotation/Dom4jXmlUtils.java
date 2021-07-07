@@ -2,8 +2,10 @@ package pers.util.xml.annotation;
 
 import org.dom4j.*;
 import pers.util.xml.model.Dom4jXmlDemo;
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.*;
 
 /**
@@ -52,27 +54,67 @@ public class Dom4jXmlUtils {
 
     public static <T> T createInstanceAndField(Element element, Class<T> tClass) throws Exception {
         T t = tClass.newInstance();
+
         List<Field> allField = getAllField(tClass);
         for (Field field : allField) {
             String name = field.getName();
-            //节点
-            Element nodeElement = element.element(name);
+            boolean nameFlag = false;
+            boolean attributeFlag = false;
             Dom4jFieldXml dom4jFieldXml = field.getAnnotation(Dom4jFieldXml.class);
             if (dom4jFieldXml != null && !"".equals(dom4jFieldXml.name())) {
+                nameFlag = true;
+            }
+            if (dom4jFieldXml != null && dom4jFieldXml.attribute() != void.class) {
+                attributeFlag = true;
+            }
+            if (field.getType() == List.class) {
+                List<Element> elementList = element.elements(name);
+                if (nameFlag) {
+                    elementList = element.elements(dom4jFieldXml.name());
+                }
+                if (elementList == null || elementList.isEmpty()) {
+                    continue;
+                }
+
+                List fieldValue = new ArrayList();
+                List attributeValue = new ArrayList();
+                for (Element ele : elementList) {
+                    if (attributeFlag) {
+                        Object nodeAttribute = attribute(ele, dom4jFieldXml.attribute());
+                        attributeValue.add(nodeAttribute);
+                    }
+
+                    if (ele.elements().isEmpty()) {
+                        fieldValue.add(ele.getData());
+                        continue;
+                    }
+                    Class<?> eClass = (Class<?>) ((ParameterizedTypeImpl) field.getGenericType()).getActualTypeArguments()[0];
+                    Object nextValue = createInstanceAndField(ele, eClass);
+                    fieldValue.add(nextValue);
+                }
+                Field declaredField = tClass.getDeclaredField(name + "Attribute");
+                declaredField.setAccessible(true);
+                declaredField.set(t, attributeValue);
+
+                field.setAccessible(true);
+                field.set(t, fieldValue);
+                continue;
+            }
+            //节点
+            Element nodeElement = element.element(name);
+            if (nameFlag) {
                 nodeElement = element.element(dom4jFieldXml.name());
             }
             if (nodeElement == null) {
                 continue;
             }
-
             //设置根属性
-            if (dom4jFieldXml != null && dom4jFieldXml.attribute() != void.class) {
+            if (attributeFlag) {
                 Object nodeAttribute = attribute(nodeElement, dom4jFieldXml.attribute());
                 Field declaredField = tClass.getDeclaredField(name + "Attribute");
                 declaredField.setAccessible(true);
                 declaredField.set(t, nodeAttribute);
             }
-
 
             //设置元素值
             if (nodeElement.elements().isEmpty()) {
@@ -171,6 +213,10 @@ public class Dom4jXmlUtils {
                 "<xid wo=\"kkk\" ks=\"gg\">" +
                 "<huanghe wo=\"laile\" ks=\"zoule\">sg</huanghe>" +
                 "<sh>sb</sh>" +
+                "</xid>" +
+                "<xid wo=\"ksk\" ks=\"gsg\">" +
+                "<huanghe wo=\"lailes\" ks=\"zoules\">sgs</huanghe>" +
+                "<sh>sbs</sh>" +
                 "</xid>" +
                 "<key>wode</key>" +
                 "</file>";

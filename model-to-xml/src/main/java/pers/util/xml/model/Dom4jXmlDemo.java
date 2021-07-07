@@ -5,6 +5,8 @@ import lombok.NoArgsConstructor;
 import pers.util.xml.annotation.Dom4jFieldXml;
 import pers.util.xml.annotation.Dom4jXml;
 
+import java.util.List;
+
 /**
  * 描述：Dom4jXmlDemo
  *
@@ -19,9 +21,9 @@ import pers.util.xml.annotation.Dom4jXml;
 public class Dom4jXmlDemo {
 
     @Dom4jFieldXml(name = "xid",attribute = Dom4jXmlAttribute.class)
-    private Dom4jXmlField id;
+    private List<Dom4jXmlField> idList;
 
-    private Dom4jXmlAttribute idAttribute;
+    private List<Dom4jXmlAttribute> idListAttribute;
 
     private String key;
 
