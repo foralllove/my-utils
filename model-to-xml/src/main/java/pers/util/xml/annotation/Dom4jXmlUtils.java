@@ -1,11 +1,15 @@
 package pers.util.xml.annotation;
 
 import org.dom4j.*;
+import pers.util.xml.model.Dom4jXmlAttribute;
 import pers.util.xml.model.Dom4jXmlDemo;
+import pers.util.xml.model.Dom4jXmlField;
+import pers.util.xml.model.Dom4jXmlNamespace;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Type;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 
 /**
@@ -37,12 +41,12 @@ public class Dom4jXmlUtils {
         Object rootAttribute = null;
         if (rootAttributeClass != void.class) {
             //属性转换的对象
-            rootAttribute = namespace(rootElement, rootAttributeClass);
+            rootAttribute = readNamespace(rootElement, rootAttributeClass);
         }
         //节点处理
         t = createInstanceAndField(rootElement, tClass);
         try {
-            Field field = tClass.getDeclaredField("namespace");
+            Field field = tClass.getDeclaredField("readNamespace");
             field.setAccessible(true);
             field.set(t, rootAttribute);
         } catch (NoSuchFieldException exception) {
@@ -80,7 +84,7 @@ public class Dom4jXmlUtils {
                 List attributeValue = new ArrayList();
                 for (Element ele : elementList) {
                     if (attributeFlag) {
-                        Object nodeAttribute = attribute(ele, dom4jFieldXml.attribute());
+                        Object nodeAttribute = readAttribute(ele, dom4jFieldXml.attribute());
                         attributeValue.add(nodeAttribute);
                     }
 
@@ -110,7 +114,7 @@ public class Dom4jXmlUtils {
             }
             //设置根属性
             if (attributeFlag) {
-                Object nodeAttribute = attribute(nodeElement, dom4jFieldXml.attribute());
+                Object nodeAttribute = readAttribute(nodeElement, dom4jFieldXml.attribute());
                 Field declaredField = tClass.getDeclaredField(name + "Attribute");
                 declaredField.setAccessible(true);
                 declaredField.set(t, nodeAttribute);
@@ -129,7 +133,7 @@ public class Dom4jXmlUtils {
         return t;
     }
 
-    private static <T> T namespace(Element element, Class<T> tClass) throws Exception {
+    private static <T> T readNamespace(Element element, Class<T> tClass) throws Exception {
         T t = tClass.newInstance();
         List<Field> allFieldList = getAllField(tClass);
         for (Field field : allFieldList) {
@@ -151,13 +155,14 @@ public class Dom4jXmlUtils {
 
     /**
      * 属性对象处理
+     *
      * @param element 属性节点
-     * @param tClass 对象
-     * @param <T> 属性类型
+     * @param tClass  对象
+     * @param <T>     属性类型
      * @return 属性对象
      * @throws Exception 异常
      */
-    private static <T> T attribute(Element element, Class<T> tClass) throws Exception {
+    private static <T> T readAttribute(Element element, Class<T> tClass) throws Exception {
         //获取属性
         List<Field> allFieldList = getAllField(tClass);
 
@@ -207,6 +212,171 @@ public class Dom4jXmlUtils {
         return fields;
     }
 
+    public static <T> String beanToXml(T t) throws NoSuchFieldException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        if (t == null) {
+            throw new NullPointerException("对象为空");
+        }
+        Document document = DocumentHelper.createDocument();
+        Class<?> tClass = t.getClass();
+        //是否标注可转换
+        if (!tClass.isAnnotationPresent(Dom4jXml.class)) {
+            return "";
+        }
+        //获取注解
+        Dom4jXml dom4jXml = tClass.getAnnotation(Dom4jXml.class);
+        String name = dom4jXml.name();
+        Element rootElement;
+        if ("".equals(name)) {
+            rootElement = document.addElement("root");
+        } else {
+            rootElement = document.addElement(name);
+        }
+        //命名空间处理
+        Class<?> namespaceClass = dom4jXml.namespace();
+        if (namespaceClass != void.class) {
+            Field namespaceField = tClass.getDeclaredField("namespace");
+            //命名空间 对象
+            Object nameSpaceValue = getFieldValue(t, namespaceField);
+            //所有字段
+            List<Field> nameSpaceField = getAllField(namespaceClass);
+            for (Field field : nameSpaceField) {
+                Object fieldValue = getFieldValue(nameSpaceValue, field);
+                if (fieldValue == null) {
+                    continue;
+                }
+                Dom4jFieldXml dom4jFieldXml = field.getAnnotation(Dom4jFieldXml.class);
+                String url = String.valueOf(fieldValue);
+                if (dom4jFieldXml == null) {
+                    rootElement.add(new Namespace(field.getName(), url));
+                    continue;
+                }
+                rootElement.add(new Namespace(dom4jFieldXml.name(), url));
+            }
+        }
+        writeElement(t, tClass, rootElement);
+
+        return document.asXML();
+    }
+
+    private static boolean isBaseType(Object tClass) {
+        if ((tClass instanceof Number) ||
+                (tClass instanceof Boolean) ||
+                (tClass instanceof String) ||
+                (tClass instanceof Date)) {
+            return true;
+        }
+        return false;
+    }
+
+    private static <T> Object getFieldAttributeValue(T t, Field field) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+        Class<?> tClass = t.getClass();
+        String methodName = field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
+        Method m = tClass.getMethod("get" + methodName + "Attribute");
+        return m.invoke(t);
+    }
+
+    private static void writeElement(Object t, Class<?> tClass, Element rootElement) throws NoSuchFieldException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        List<Field> allField = getAllField(tClass);
+        for (Field field : allField) {
+            if (field.getName().endsWith("Attribute") || "namespace".equals(field.getName())) {
+                continue;
+            }
+            Object fieldValue = getFieldValue(t, field);
+            if (fieldValue == null) {
+                continue;
+            }
+
+            // 存在字段注解
+            Dom4jFieldXml dom4jFieldXml = field.getAnnotation(Dom4jFieldXml.class);
+            String elementName = field.getName();
+            if (dom4jFieldXml != null && !"".equals(dom4jFieldXml.name())) {
+                elementName = dom4jFieldXml.name();
+            }
+            boolean attributeFlag = false;
+            Object attributeValue = null;
+            Field declaredField = null;
+
+            if (dom4jFieldXml != null && (dom4jFieldXml.attribute()) != void.class) {
+                attributeFlag = true;
+                attributeValue = getFieldAttributeValue(t, field);
+                declaredField = tClass.getDeclaredField(field.getName() + "Attribute");
+            }
+
+            //list对象
+            if (field.getType() == List.class) {
+                List list = (List) fieldValue;
+                List aList = null;
+                if (attributeFlag) {
+                    aList = (List) attributeValue;
+                }
+                for (int i = 0; i < list.size(); i++) {
+                    Element element = rootElement.addElement(elementName);
+                    Object fVal = list.get(i);
+                    if (fVal == null) {
+                        continue;
+                    }
+                    if (isBaseType(fVal)) {
+                        element.setText(String.valueOf(fVal));
+                    } else {
+                        writeElement(fVal, fVal.getClass(), element);
+                    }
+
+                    if (attributeFlag) {
+                        if (aList == null) {
+                            continue;
+                        }
+                        Object aVal = aList.get(i);
+                        writeAttribute(aVal, declaredField, element);
+                    }
+                }
+                continue;
+            }
+            Element element = rootElement.addElement(elementName);
+            if (isBaseType(fieldValue)) {
+                element.setText(String.valueOf(fieldValue));
+            } else {
+                writeElement(fieldValue, fieldValue.getClass(), element);
+            }
+            //属性设置
+            if (attributeFlag) {
+                if (attributeValue == null) {
+                    continue;
+                }
+                writeAttribute(attributeValue, declaredField, element);
+            }
+        }
+
+    }
+
+    private static void writeAttribute(Object fieldValue, Field field, Element element) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        Class<?> type = field.getType();
+        if (type == List.class) {
+            type = (Class<?>) ((ParameterizedTypeImpl) field.getGenericType()).getActualTypeArguments()[0];
+        }
+        List<Field> allField = getAllField(type);
+        for (Field fd : allField) {
+            Dom4jFieldXml dom4jFieldXml = fd.getAnnotation(Dom4jFieldXml.class);
+            Object fdValue = getFieldValue(fieldValue, fd);
+            if (fdValue == null) {
+                continue;
+            }
+            String name;
+            if (dom4jFieldXml != null && "".equals(dom4jFieldXml.name())) {
+                name = dom4jFieldXml.name();
+            } else {
+                name = fd.getName();
+            }
+            element.addAttribute(name, String.valueOf(fdValue));
+        }
+    }
+
+    private static <T> Object getFieldValue(T t, Field field) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Class<?> tClass = t.getClass();
+        String methodName = field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
+        Method m = tClass.getMethod("get" + methodName);
+        return m.invoke(t);
+    }
+
     public static void main(String[] args) throws Exception {
         String str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?> " +
                 "<file xmlns=\"urn:gsma:params:xml:ns:rcs:rcs:fthttp\" xmlns:x=\"urn:gsma:params:xml:ns:rcs:rcs:up:fthttpext\">" +
@@ -222,5 +392,31 @@ public class Dom4jXmlUtils {
                 "</file>";
         Dom4jXmlDemo ww = xmlToBean(str, Dom4jXmlDemo.class);
         System.out.println("gg");
+
+
+        Dom4jXmlDemo dom4jXmlDemo = new Dom4jXmlDemo();
+        Dom4jXmlNamespace namespace = new Dom4jXmlNamespace();
+        namespace.setA("urn:gsma:params:xml:ns:rcs:rcs:fthttp");
+        namespace.setB("urn:gsma:params:xml:ns:rcs:rcs:up:fthttpext");
+        dom4jXmlDemo.setNamespace(namespace);
+        Dom4jXmlField dom4jXmlField = new Dom4jXmlField();
+        dom4jXmlField.setHh("sg");
+        dom4jXmlField.setSh("sb");
+
+        List<Dom4jXmlField> list = new ArrayList<>();
+        list.add(dom4jXmlField);
+
+        Dom4jXmlAttribute dom4jXmlAttribute = new Dom4jXmlAttribute();
+        dom4jXmlAttribute.setKs("zoule");
+        dom4jXmlAttribute.setWs("laile");
+        List<Dom4jXmlAttribute> list2 = new ArrayList<>();
+        list2.add(dom4jXmlAttribute);
+
+        dom4jXmlDemo.setIdList(list);
+        dom4jXmlDemo.setIdListAttribute(list2);
+
+        System.out.println(beanToXml(dom4jXmlDemo));
+
+
     }
 }
