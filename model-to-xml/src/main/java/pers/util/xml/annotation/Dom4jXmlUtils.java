@@ -256,7 +256,8 @@ public class Dom4jXmlUtils {
         if ("".equals(name)) {
             name = "root";
         }
-        QName qName = DocumentHelper.createQName(name, new Namespace("", "urn:gsma:params:xml:ns:rcs:rcs:fthttp"));
+        //当前根节点命名空间
+        QName qName = DocumentHelper.createQName(name, new Namespace(dom4jXml.namespacePrefix(), dom4jXml.namespaceUrl()));
         rootElement = document.addElement(qName);
 
         //命名空间处理
@@ -471,7 +472,6 @@ public class Dom4jXmlUtils {
 
         Dom4jXmlDemo dom4jXmlDemo = new Dom4jXmlDemo();
         Dom4jXmlNamespace namespace = new Dom4jXmlNamespace();
-        namespace.setA("urn:gsma:params:xml:ns:rcs:rcs:fthttp");
         namespace.setB("urn:gsma:params:xml:ns:rcs:rcs:up:fthttpext");
         dom4jXmlDemo.setNamespace(namespace);
 

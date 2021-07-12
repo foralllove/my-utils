@@ -16,7 +16,7 @@ import java.util.List;
  */
 @Data
 @NoArgsConstructor
-@Dom4jXml(name = "file", namespace = Dom4jXmlNamespace.class)
+@Dom4jXml(name = "file", namespace = Dom4jXmlNamespace.class,namespaceUrl = "urn:gsma:params:xml:ns:rcs:rcs:fthttp")
 public class Dom4jXmlDemo {
 
     @Dom4jXml(name = "xid",attribute = Dom4jXmlAttribute.class)
