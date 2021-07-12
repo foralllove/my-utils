@@ -9,7 +9,7 @@ import java.lang.annotation.*;
  * @since: 2021/7/6 1:13
  */
 
-@Target(ElementType.TYPE)
+@Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Dom4jXml {
@@ -26,5 +26,10 @@ public @interface Dom4jXml {
      */
     Class<?> namespace() default void.class;
 
+    /**
+     * 字段属性
+     * @return 属性
+     */
+    Class<?> attribute() default void.class;
 }
 

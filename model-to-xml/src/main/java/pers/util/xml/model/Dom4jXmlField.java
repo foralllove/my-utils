@@ -1,7 +1,7 @@
 package pers.util.xml.model;
 
 import lombok.Data;
-import pers.util.xml.annotation.Dom4jFieldXml;
+import pers.util.xml.annotation.Dom4jXml;
 
 /**
  * 描述：Dom4jXmlFieldXml
@@ -13,7 +13,7 @@ import pers.util.xml.annotation.Dom4jFieldXml;
  */
 @Data
 public class Dom4jXmlField {
-    @Dom4jFieldXml(name = "huanghe",attribute = Dom4jXmlAttribute.class)
+    @Dom4jXml(name = "huanghe",attribute = Dom4jXmlAttribute.class)
     private String hh;
 
     private Dom4jXmlAttribute hhAttribute;

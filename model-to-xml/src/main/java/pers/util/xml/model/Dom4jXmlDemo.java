@@ -2,7 +2,6 @@ package pers.util.xml.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import pers.util.xml.annotation.Dom4jFieldXml;
 import pers.util.xml.annotation.Dom4jXml;
 
 import java.util.List;
@@ -20,7 +19,7 @@ import java.util.List;
 @Dom4jXml(name = "file", namespace = Dom4jXmlNamespace.class)
 public class Dom4jXmlDemo {
 
-    @Dom4jFieldXml(name = "xid",attribute = Dom4jXmlAttribute.class)
+    @Dom4jXml(name = "xid",attribute = Dom4jXmlAttribute.class)
     private List<Dom4jXmlField> idList;
 
     private List<Dom4jXmlAttribute> idListAttribute;

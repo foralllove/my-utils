@@ -1,7 +1,7 @@
 package pers.util.xml.model;
 
 import lombok.Data;
-import pers.util.xml.annotation.Dom4jFieldXml;
+import pers.util.xml.annotation.Dom4jXml;
 
 /**
  * 描述：Dom4jXmlAttribute
@@ -16,6 +16,6 @@ public class Dom4jXmlAttribute {
 
     private String ks;
 
-    @Dom4jFieldXml(name = "wo")
+    @Dom4jXml(name = "wo")
     private String ws;
 }
